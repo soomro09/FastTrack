@@ -1,11 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FastTrack Privacy</title>
 <meta name="description" content="How FastTrack handles your fasting, weight, and hydration data — in short, it never leaves your device.">
+<meta name="theme-color" content="#0D9488">
+<link rel="icon" type="image/png" href="favicon.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
 
   :root {
     --bg: #F7FAF9;
     --surface: #FFFFFF;
+    --surface-glass: rgba(255, 255, 255, 0.72);
     --text-primary: #10201D;
     --text-secondary: #5C6E6A;
     --text-tertiary: #7C8C88;
@@ -15,12 +23,15 @@
     --accent-soft: #E7F5F3;
     --accent-soft-border: #BFE6E0;
     --shadow: 0 1px 2px rgba(16, 32, 29, 0.04), 0 8px 24px rgba(16, 32, 29, 0.06);
+    --grad-a: rgba(13, 148, 136, 0.14);
+    --grad-b: rgba(45, 212, 191, 0.10);
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --bg: #0D1210;
       --surface: #141C1A;
+      --surface-glass: rgba(20, 28, 26, 0.68);
       --text-primary: #F7FAF9;
       --text-secondary: #9BAAA7;
       --text-tertiary: #7E908C;
@@ -30,12 +41,15 @@
       --accent-soft: rgba(45, 212, 191, 0.1);
       --accent-soft-border: rgba(45, 212, 191, 0.28);
       --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+      --grad-a: rgba(45, 212, 191, 0.14);
+      --grad-b: rgba(13, 148, 136, 0.12);
     }
   }
 
   :root[data-theme="dark"] {
     --bg: #0D1210;
     --surface: #141C1A;
+    --surface-glass: rgba(20, 28, 26, 0.68);
     --text-primary: #F7FAF9;
     --text-secondary: #9BAAA7;
     --text-tertiary: #7E908C;
@@ -45,24 +59,39 @@
     --accent-soft: rgba(45, 212, 191, 0.1);
     --accent-soft-border: rgba(45, 212, 191, 0.28);
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    --grad-a: rgba(45, 212, 191, 0.14);
+    --grad-b: rgba(13, 148, 136, 0.12);
   }
 
   * { box-sizing: border-box; }
 
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+
   body {
-    background: var(--bg);
+    background:
+      radial-gradient(900px 480px at 85% -10%, var(--grad-a), transparent 60%),
+      radial-gradient(700px 420px at -10% 10%, var(--grad-b), transparent 55%),
+      var(--bg);
     color: var(--text-primary);
     font-family: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
     font-size: 16px;
     line-height: 1.65;
+    margin: 0;
     padding-inline: 20px;
     padding-block: 56px 80px;
+    -webkit-font-smoothing: antialiased;
   }
 
-  .sheet {
-    max-width: 700px;
+  .page {
+    max-width: 1040px;
     margin: 0 auto;
   }
+
+  .sheet { max-width: 700px; }
 
   .eyebrow {
     font-family: 'IBM Plex Mono', ui-monospace, monospace;
@@ -106,6 +135,7 @@
     background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
     flex: none;
     position: relative;
+    box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
   }
 
   .mark::before {
@@ -138,8 +168,8 @@
   h1 {
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 600;
-    font-size: clamp(32px, 6vw, 44px);
-    line-height: 1.08;
+    font-size: clamp(32px, 6vw, 48px);
+    line-height: 1.06;
     letter-spacing: -0.015em;
     text-wrap: balance;
     margin-block: 18px 10px;
@@ -155,9 +185,10 @@
   .tldr {
     margin-block: 32px;
     padding: 22px 24px;
-    border-radius: 16px;
+    border-radius: 18px;
     background: var(--accent-soft);
     border: 1px solid var(--accent-soft-border);
+    backdrop-filter: blur(6px);
   }
 
   .tldr h2 {
@@ -190,10 +221,41 @@
     color: var(--accent-strong);
   }
 
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    align-items: start;
+  }
+
+  @media (min-width: 900px) {
+    .layout {
+      grid-template-columns: 200px minmax(0, 700px);
+      grid-template-rows: auto auto;
+      column-gap: 56px;
+    }
+    .sheet { max-width: none; }
+    .sheet:first-of-type { grid-column: 2; grid-row: 1; }
+    .sheet:last-of-type { grid-column: 2; grid-row: 2; }
+  }
+
   nav.toc {
     margin-block: 36px;
     padding-block: 20px;
     border-block: 1px solid var(--border);
+  }
+
+  @media (min-width: 900px) {
+    nav.toc {
+      grid-column: 1;
+      grid-row: 1 / 3;
+      position: sticky;
+      top: 32px;
+      margin-block: 0;
+      padding-block: 0;
+      border-block: none;
+      align-self: start;
+    }
   }
 
   nav.toc ol {
@@ -203,6 +265,10 @@
     columns: 2;
     column-gap: 24px;
     counter-reset: toc;
+  }
+
+  @media (min-width: 900px) {
+    nav.toc ol { columns: 1; }
   }
 
   nav.toc li {
@@ -217,9 +283,14 @@
     text-decoration: none;
     display: flex;
     gap: 8px;
+    padding-block: 2px;
+    transition: color 0.15s ease, transform 0.15s ease;
   }
 
-  nav.toc a:hover { color: var(--accent); }
+  nav.toc a:hover {
+    color: var(--accent-strong);
+    transform: translateX(2px);
+  }
 
   nav.toc a::before {
     content: counter(toc, decimal-leading-zero);
@@ -270,7 +341,12 @@
 
   section strong { color: var(--text-primary); font-weight: 600; }
 
-  .table-wrap { overflow-x: auto; margin-block: 16px; }
+  .table-wrap {
+    overflow-x: auto;
+    margin-block: 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+  }
 
   table {
     border-collapse: collapse;
@@ -281,10 +357,12 @@
 
   th, td {
     text-align: left;
-    padding: 10px 14px;
+    padding: 12px 14px;
     border-bottom: 1px solid var(--border);
     vertical-align: top;
   }
+
+  tr:last-child td { border-bottom: none; }
 
   th {
     font-family: 'IBM Plex Mono', ui-monospace, monospace;
@@ -293,15 +371,17 @@
     text-transform: uppercase;
     color: var(--text-tertiary);
     font-weight: 500;
+    background: var(--accent-soft);
   }
 
   td { color: var(--text-secondary); }
   td.emph { color: var(--text-primary); font-weight: 600; }
 
   .card {
-    background: var(--surface);
+    background: var(--surface-glass);
+    backdrop-filter: blur(10px);
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 16px;
     padding: 18px 20px;
     box-shadow: var(--shadow);
     margin-block: 14px;
@@ -338,7 +418,7 @@
 
   a { color: var(--accent-strong); }
 
-  @media (max-width: 520px) {
+  @media (max-width: 899px) {
     nav.toc ol { columns: 1; }
     section h2 { font-size: 21px; }
   }
@@ -348,8 +428,12 @@
     outline-offset: 2px;
   }
 </style>
+</head>
+<body>
+<div class="page">
+<div class="layout">
 
-<div class="sheet">
+  <div class="sheet">
 
   <header>
     <div class="brand">
@@ -376,6 +460,8 @@
     </ul>
   </div>
 
+  </div>
+
   <nav class="toc" aria-label="Table of contents">
     <span class="eyebrow">Contents</span>
     <ol>
@@ -391,6 +477,8 @@
       <li><a href="#contact">Contact us</a></li>
     </ol>
   </nav>
+
+  <div class="sheet">
 
   <section id="collect">
     <h2><span class="num">01</span> Information we collect</h2>
@@ -486,4 +574,9 @@
     <div class="contact">Privacy questions: <a href="mailto:imi.munawar@gmail.com">imi.munawar@gmail.com</a></div>
   </footer>
 
+  </div>
+
 </div>
+</div>
+</body>
+</html>
