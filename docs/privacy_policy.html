@@ -1,0 +1,489 @@
+<title>FastTrack Privacy</title>
+<meta name="description" content="How FastTrack handles your fasting, weight, and hydration data — in short, it never leaves your device.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
+
+  :root {
+    --bg: #F7FAF9;
+    --surface: #FFFFFF;
+    --text-primary: #10201D;
+    --text-secondary: #5C6E6A;
+    --text-tertiary: #7C8C88;
+    --border: #E1E8E6;
+    --accent: #0D9488;
+    --accent-strong: #0F766E;
+    --accent-soft: #E7F5F3;
+    --accent-soft-border: #BFE6E0;
+    --shadow: 0 1px 2px rgba(16, 32, 29, 0.04), 0 8px 24px rgba(16, 32, 29, 0.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0D1210;
+      --surface: #141C1A;
+      --text-primary: #F7FAF9;
+      --text-secondary: #9BAAA7;
+      --text-tertiary: #7E908C;
+      --border: #24312E;
+      --accent: #2DD4BF;
+      --accent-strong: #5EEAD4;
+      --accent-soft: rgba(45, 212, 191, 0.1);
+      --accent-soft-border: rgba(45, 212, 191, 0.28);
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0D1210;
+    --surface: #141C1A;
+    --text-primary: #F7FAF9;
+    --text-secondary: #9BAAA7;
+    --text-tertiary: #7E908C;
+    --border: #24312E;
+    --accent: #2DD4BF;
+    --accent-strong: #5EEAD4;
+    --accent-soft: rgba(45, 212, 191, 0.1);
+    --accent-soft-border: rgba(45, 212, 191, 0.28);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    padding-inline: 20px;
+    padding-block: 56px 80px;
+  }
+
+  .sheet {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .eyebrow .dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--text-tertiary);
+    flex: none;
+  }
+
+  header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-block-end: 28px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+    flex: none;
+    position: relative;
+  }
+
+  .mark::before {
+    content: "";
+    position: absolute;
+    inset: 9px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.92);
+  }
+
+  .mark::after {
+    content: "";
+    position: absolute;
+    top: 13px;
+    left: 20px;
+    width: 6px;
+    height: 1.6px;
+    background: rgba(255, 255, 255, 0.92);
+    transform-origin: left center;
+    transform: rotate(35deg);
+  }
+
+  .brand-name {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: 19px;
+    letter-spacing: -0.01em;
+  }
+
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(32px, 6vw, 44px);
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    margin-block: 18px 10px;
+  }
+
+  .lede {
+    color: var(--text-secondary);
+    font-size: 17px;
+    max-width: 56ch;
+    margin-block-end: 0;
+  }
+
+  .tldr {
+    margin-block: 32px;
+    padding: 22px 24px;
+    border-radius: 16px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-soft-border);
+  }
+
+  .tldr h2 {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-strong);
+    margin: 0 0 14px;
+  }
+
+  .tldr ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 10px;
+  }
+
+  .tldr li {
+    display: flex;
+    gap: 10px;
+    font-size: 15px;
+    color: var(--text-primary);
+  }
+
+  .tldr li svg {
+    flex: none;
+    margin-top: 3px;
+    color: var(--accent-strong);
+  }
+
+  nav.toc {
+    margin-block: 36px;
+    padding-block: 20px;
+    border-block: 1px solid var(--border);
+  }
+
+  nav.toc ol {
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+    columns: 2;
+    column-gap: 24px;
+    counter-reset: toc;
+  }
+
+  nav.toc li {
+    counter-increment: toc;
+    break-inside: avoid;
+    margin-block-end: 9px;
+  }
+
+  nav.toc a {
+    font-size: 14.5px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    display: flex;
+    gap: 8px;
+  }
+
+  nav.toc a:hover { color: var(--accent); }
+
+  nav.toc a::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    flex: none;
+  }
+
+  section {
+    margin-block: 44px;
+    scroll-margin-top: 24px;
+  }
+
+  section h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: 24px;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-block-end: 14px;
+    text-wrap: balance;
+  }
+
+  section h2 .num {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  section p, section li {
+    color: var(--text-secondary);
+    font-size: 15.5px;
+  }
+
+  section p { margin-block: 0 12px; max-width: 66ch; }
+
+  section ul, section ol.plain {
+    margin: 0 0 12px;
+    padding-left: 20px;
+    max-width: 66ch;
+  }
+
+  section li { margin-block-end: 6px; }
+
+  section strong { color: var(--text-primary); font-weight: 600; }
+
+  .table-wrap { overflow-x: auto; margin-block: 16px; }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 480px;
+    font-size: 14.5px;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  th {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+
+  td { color: var(--text-secondary); }
+  td.emph { color: var(--text-primary); font-weight: 600; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    margin-block: 14px;
+  }
+
+  .permission {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 14px 16px;
+    padding-block: 14px;
+    border-block-end: 1px solid var(--border);
+  }
+
+  .permission:last-child { border-block-end: none; }
+
+  .permission svg { color: var(--accent); margin-top: 2px; }
+  .permission h3 { margin: 0 0 4px; font-size: 15.5px; font-weight: 600; color: var(--text-primary); }
+  .permission p { margin: 0; font-size: 14.5px; }
+
+  footer {
+    margin-block-start: 56px;
+    padding-block-start: 28px;
+    border-block-start: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  footer .contact { font-size: 14.5px; color: var(--text-secondary); }
+  footer .contact a { color: var(--accent-strong); font-weight: 600; text-decoration: none; }
+  footer .contact a:hover { text-decoration: underline; }
+
+  a { color: var(--accent-strong); }
+
+  @media (max-width: 520px) {
+    nav.toc ol { columns: 1; }
+    section h2 { font-size: 21px; }
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+</style>
+
+<div class="sheet">
+
+  <header>
+    <div class="brand">
+      <span class="mark" aria-hidden="true"></span>
+      <span class="brand-name">FastTrack</span>
+    </div>
+    <div class="eyebrow">
+      <span>Effective 14 Sept 2026</span>
+      <span class="dot"></span>
+      <span>v1.0</span>
+    </div>
+  </header>
+
+  <h1>Privacy Policy</h1>
+  <p class="lede">FastTrack is an intermittent-fasting, weight, and hydration tracker built by Kodevengers. This page explains, plainly, what the app does with your information — which is very little, because almost none of it goes anywhere.</p>
+
+  <div class="tldr">
+    <h2>In short</h2>
+    <ul>
+      <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.2 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Your fasting logs, weight, and photos are stored only on your phone, in a local database.</li>
+      <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.2 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> FastTrack has no servers, no account, and no sign-in — we never receive your data at all.</li>
+      <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.2 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> No ads, no analytics, no trackers, and nothing is sold or shared with third parties.</li>
+      <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.2 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Delete everything anytime with <em>Reset App Data</em> in Settings, or by uninstalling the app.</li>
+    </ul>
+  </div>
+
+  <nav class="toc" aria-label="Table of contents">
+    <span class="eyebrow">Contents</span>
+    <ol>
+      <li><a href="#collect">Information we collect</a></li>
+      <li><a href="#use">How your data is used</a></li>
+      <li><a href="#permissions">Permissions we request</a></li>
+      <li><a href="#storage">Storage &amp; security</a></li>
+      <li><a href="#sharing">Sharing with third parties</a></li>
+      <li><a href="#retention">Retention &amp; deletion</a></li>
+      <li><a href="#children">Children's privacy</a></li>
+      <li><a href="#rights">Your choices</a></li>
+      <li><a href="#changes">Changes to this policy</a></li>
+      <li><a href="#contact">Contact us</a></li>
+    </ol>
+  </nav>
+
+  <section id="collect">
+    <h2><span class="num">01</span> Information we collect</h2>
+    <p>FastTrack collects information only through what you choose to enter while using the app. None of it is transmitted anywhere — it's read and written directly on your device.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Data</th><th>Where it's entered</th><th>Stored as</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="emph">Fasting sessions</td><td>Timer start/end, adjusted times</td><td>Local database</td></tr>
+          <tr><td class="emph">Weight entries</td><td>Profile weight log</td><td>Local database</td></tr>
+          <tr><td class="emph">Water intake</td><td>Hydration tracker</td><td>Local preferences</td></tr>
+          <tr><td class="emph">Display name &amp; photo</td><td>Profile screen</td><td>Local file storage</td></tr>
+          <tr><td class="emph">Goals &amp; preferences</td><td>Onboarding, Settings</td><td>Local preferences</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>We don't ask for your real name, email, date of birth, or any government-issued ID, and the app has no field that requests them.</p>
+  </section>
+
+  <section id="use">
+    <h2><span class="num">02</span> How your data is used</h2>
+    <p>Everything you enter is used for exactly one purpose: showing it back to you. Your fasting history draws your streaks and charts; your weight log draws your progress curve; your goal and experience answers shape the suggested protocol and default reminders. None of this leaves the device to be "used" by us in any other sense — there is no analytics pipeline receiving it, and no model or service we train or improve with it.</p>
+  </section>
+
+  <section id="permissions">
+    <h2><span class="num">03</span> Permissions we request</h2>
+    <div class="card">
+      <div class="permission">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2C7 2 5.5 4 5.5 7v3.2L4 13h12l-1.5-2.8V7C14.5 4 13 2 10 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.2 15.5a1.9 1.9 0 0 0 3.6 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <div>
+          <h3>Notifications</h3>
+          <p>Used only to deliver the reminders you turn on yourself — fast start/end alerts, metabolic stage milestones, and water reminders. Every one of these is scheduled locally by the app; nothing is sent through a push-notification server.</p>
+        </div>
+      </div>
+      <div class="permission">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2.5" y="5" width="15" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10.5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M7 5L8 3h4l1 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div>
+          <h3>Camera &amp; photo library</h3>
+          <p>Requested only if you choose to set a profile picture. The image is copied into the app's private storage on your device and is never uploaded.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="storage">
+    <h2><span class="num">04</span> Storage &amp; security</h2>
+    <p>FastTrack stores data using standard on-device mechanisms: a local SQLite database for fasting and weight history, and the operating system's private app-preferences store for settings and goals. Both are sandboxed by iOS/Android to this app alone — other apps can't read them, and neither can we, since the app has no network code that would send them to us.</p>
+  </section>
+
+  <section id="sharing">
+    <h2><span class="num">05</span> Sharing with third parties</h2>
+    <p>We don't share, sell, rent, or otherwise disclose your data, because we don't have it to share. FastTrack contains no advertising SDK, no analytics SDK, and no crash-reporting service that phones home. There is no third party in this picture at all.</p>
+  </section>
+
+  <section id="retention">
+    <h2><span class="num">06</span> Retention &amp; deletion</h2>
+    <p>Your data stays on your device for as long as you keep the app installed. You're in full control of it:</p>
+    <ul>
+      <li>Delete a single fasting or weight entry with a swipe, right from History or Profile.</li>
+      <li><strong>Settings → Reset App Data</strong> permanently erases all logs on the spot.</li>
+      <li>Uninstalling FastTrack removes its entire local database and every stored preference.</li>
+    </ul>
+    <p>Because we never receive a copy, there's no server-side record for us to delete on your behalf — removing it on your device removes it, full stop.</p>
+  </section>
+
+  <section id="children">
+    <h2><span class="num">07</span> Children's privacy</h2>
+    <p>FastTrack is not directed at children and we don't knowingly collect information from anyone under 13 (or the minimum age in your region). As the app collects no data from us in the first place, this is naturally the case regardless of the user's age.</p>
+  </section>
+
+  <section id="rights">
+    <h2><span class="num">08</span> Your choices</h2>
+    <p>Since your information exists only on your device, most privacy rights you'd normally request from a company — access, correction, export, deletion — are things you already have directly in the app: every screen that shows your data lets you edit or remove it yourself, and <strong>Settings → Reset App Data</strong> covers the rest in one tap.</p>
+  </section>
+
+  <section id="changes">
+    <h2><span class="num">09</span> Changes to this policy</h2>
+    <p>If this policy changes — for example, if a future version of FastTrack adds an optional cloud-backup feature — we'll update this page and revise the effective date above. We won't quietly start collecting more than what's described here without updating this document first.</p>
+  </section>
+
+  <section id="contact">
+    <h2><span class="num">10</span> Contact us</h2>
+    <p>Questions about this policy or how FastTrack handles data can be sent to Kodevengers at the address below.</p>
+  </section>
+
+  <footer>
+    <div class="brand">
+      <span class="mark" aria-hidden="true" style="width:28px;height:28px;border-radius:9px;"></span>
+      <span style="font-size:13.5px;color:var(--text-secondary);">Kodevengers</span>
+    </div>
+    <div class="contact">Privacy questions: <a href="mailto:imi.munawar@gmail.com">imi.munawar@gmail.com</a></div>
+  </footer>
+
+</div>
